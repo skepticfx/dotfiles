@@ -51,7 +51,7 @@ vim.opt.termguicolors = true
 vim.opt.ignorecase = true
 
 -- themes
-vim.cmd("colorscheme vim")
+vim.cmd("colorscheme retrobox")
 
 -- keymaps
 vim.keymap.set("n", "<C-d>", "<C-d>zz", { noremap = true, silent = true })
