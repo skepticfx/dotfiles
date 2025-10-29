@@ -45,6 +45,24 @@ require("lazy").setup({
     vim.keymap.set("n", "<leader>vs", fzf.git_status)
   end },
   { "rebelot/kanagawa.nvim" },
+  {
+    "folke/flash.nvim",
+    event = "VeryLazy",
+    opts = {},
+    keys = {
+      { "s", mode = { "n", "x", "o" }, function() require("flash").jump() end, desc = "Flash" },
+      { "S", mode = { "n", "x", "o" }, function() require("flash").treesitter() end, desc = "Flash Treesitter" },
+      -- { "r", mode = "o", function() require("flash").remote() end, desc = "Remote Flash" },
+      -- { "R", mode = { "o", "x" }, function() require("flash").treesitter_search() end, desc = "Treesitter Search" },
+      -- { "<c-s>", mode = { "c" }, function() require("flash").toggle() end, desc = "Toggle Flash Search" },
+    },
+  },
+  { "lewis6991/gitsigns.nvim" },
+  { "akinsho/bufferline.nvim", config = function() 
+     local bufferline = require("bufferline")
+     bufferline.setup()
+   end
+   },
 })
 
 -- end experiments
@@ -143,18 +161,40 @@ vim.api.nvim_create_autocmd("FileType", {
   end,
 })
 
--- vim.api.nvim_create_autocmd("LspAttach", {
---   callback = function(args)
---     local buf = args.buf
---     local opts = { buffer = buf }
---   end,
--- })
+
+vim.api.nvim_create_autocmd("LspAttach", {
+  callback = function(ev)
+    local client = vim.lsp.get_client_by_id(ev.data.client_id)
+    if client and client.server_capabilities.completionProvider then
+      -- enable built-in LSP completion for this buffer
+      vim.lsp.completion.enable(true, client.id, ev.buf)
+    end
+
+    -- manual fallback using omnifunc (no trigger() API in 0.11 stable)
+    vim.bo[ev.buf].omnifunc = "v:lua.vim.lsp.omnifunc"
+    vim.keymap.set("i", "<C-Space>", "<C-x><C-o>", { buffer = ev.buf, desc = "Trigger completion" })
+  end,
+})
+
+-- nice completion menu behavior
 vim.opt.completeopt = { "menu", "menuone", "noselect" }
-vim.keymap.set("i", "<C-Space>", "<C-x><C-o>", { desc = "Trigger completion" })
+vim.opt.shortmess:append("c")
+
+-- Auto trigger completion as you type (Neovim 0.11 stable)
+vim.api.nvim_create_autocmd("TextChangedI", {
+  callback = function()
+    local col = vim.fn.col(".")
+    if col > 1 then
+      local ch = vim.fn.getline("."):sub(col - 1, col - 1)
+      -- trigger after ., >, ", ', /
+      if ch:match("[%.>%\"'/]") then
+        vim.fn.feedkeys(vim.api.nvim_replace_termcodes("<C-x><C-o>", true, true, true), "n")
+      end
+    end
+  end,
+})
 
 -- End LSP stuff
-
-
 
 -- Open FzfLua automatically if Neovim starts without files
 vim.api.nvim_create_autocmd("VimEnter", {
