@@ -1,5 +1,5 @@
-theme = Andromeda
-background-opacity = 0.95
+theme = ayu
+background-opacity = 1.0
 keybind = super+shift+h=goto_split:left
 keybind = super+shift++j=goto_split:bottom
 keybind = super+shift++k=goto_split:top
