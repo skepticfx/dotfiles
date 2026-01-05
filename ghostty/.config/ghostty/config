@@ -1,6 +1,2 @@
-theme = ayu
-background-opacity = 1.0
-keybind = super+shift+h=goto_split:left
-keybind = super+shift++j=goto_split:bottom
-keybind = super+shift++k=goto_split:top
-keybind = super+shift++l=goto_split:right
+theme = Firefox Dev
+background-opacity = 0.999
